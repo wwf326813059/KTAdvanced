@@ -219,12 +219,40 @@
      
      任务
      同步执行,异步执行
+     同步执行:不会去取子线程
+     异步执行:只要有任务,就会去取子线程
      队列(负责调度任务)
      串行队列,并发队列
+     
+     dispatch_queue_t q =dispatch_queue_t q dispatch_queue_create(<#const char * _Nullable label#>, <#dispatch_queue_attr_t  _Nullable attr#>)
+     1.队列名称
+     2.dispatch_queue_attr_t 队列属性
+     
+     DISPATCH_QUEUE_SERIAL串行队列
+     DISPATCH_QUEUE_CONCURRENT并行队列
+     
+     串行队列  同步任务
+     串行队列不会创建子线程
+     
+     串行队列  异步任务
+     创建一个子线程
+     
+     并发队列  异步执行
+     一个任务开启一条线程.
+     
+     并发队列  同步执行.
+     都会顺序执行 不会开启分线程
+     
+     开不开线程,取决于执行任务的函数,同步不开,异步才能开.
+     开几条线程取决于队列. 串行开一条,并发开多条.
+     
+     
+     队列里放任务, 如果先放同步任务 ,那么异步任务要等待.
      
      
      
      */
+    
     
     
     
