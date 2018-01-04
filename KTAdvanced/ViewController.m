@@ -249,12 +249,129 @@
      
      队列里放任务, 如果先放同步任务 ,那么异步任务要等待.
      
+     队列里的异步任务 要等待同步任务执行完毕,才能执行异步任务.
      
+     全局队列参数
+     1.涉及到系统适配
+     iOS7 调度的优先级.
+     
+     #define DISPATCH_QUEUE_PRIORITY_HIGH 2
+     #define DISPATCH_QUEUE_PRIORITY_DEFAULT 0
+     #define DISPATCH_QUEUE_PRIORITY_LOW (-2)
+     #define DISPATCH_QUEUE_PRIORITY_BACKGROUND INT16_MIN
+     
+     
+     iOS8  服务质量.
+     _QOS_ENUM(qos_class, unsigned int,
+     QOS_CLASS_USER_INTERACTIVE  用户交互
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x21,
+     QOS_CLASS_USER_INITIATED 用户需要的
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x19,
+     QOS_CLASS_DEFAULT 默认的
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x15,
+     QOS_CLASS_UTILITY  使用工具
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x11,
+     QOS_CLASS_BACKGROUND 后台
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x09,
+     QOS_CLASS_UNSPECIFIED 没有指定优先级
+     __QOS_CLASS_AVAILABLE(macos(10.10), ios(8.0)) = 0x00,
+     
+     全局队列和并发队列
+     
+     1.名称,并发队列可以取名字,适用于企业开发
+     
+     全局队列:并发 调度多个线程  执行效率高 费电
+     串行队列:执行效率低 省电
+     
+     wifi可以多用并发.
+     流量少用.
+     
+     延时执行是异步执行
+     dispatch_after(<#dispatch_time_t when#>, <#dispatch_queue_t  _Nonnull queue#>, <#^(void)block#>)
+     
+     
+     一次执行 不要用互斥锁 效率低 自带线程安全
+     dispatch_once(<#dispatch_once_t * _Nonnull predicate#>, <#^(void)block#>)
+     
+     调度组
+     dispatch_group_async(<#dispatch_group_t  _Nonnull group#>, <#dispatch_queue_t  _Nonnull queue#>, <#^(void)block#>)
+     
+     组调度完毕 通知
+      dispatch_group_notify(<#dispatch_group_t  _Nonnull group#>, <#dispatch_queue_t  _Nonnull queue#>, <#^(void)block#>)
+     用一个调度组  可以监听全局队列的任务,主队列去执行最后的任务.
+     
+     
+     主队列是专门负责主线程上调度任务的队列  不会开线程
+     
+     同步执行的任务  这句话不执行完毕就不能执行下一个,阻塞式
+     
+     使用sync函数 往当前串行队列中添加任务,会卡住当前的串行队列.
+     */
+    
+    
+#pragma mark ----- NSOperation
+    /*
+     特点:是一个抽象类 不能直接使用
+     
+     目的:定义子类共用的属性和方法.
+     
+     子类:NSInvocationOperation
+         NSBlockOperation
+     
+     
+     NSInvocationOperation * op =[[NSInvocationOperation alloc]initWithTarget:self selector:@selector(selector) object:@""];
+     start  在当前线程执行调度方法.
+     [op start];
+     
+     
+    NSOperationQueue * q =[[NSOperationQueue alloc]init];
+    [q addOperation:op];
+     
+     将操作添加到队列  会自动异步执行调度方法
+     
+     NSBlockOperation * op =[NSBlockOperation blockOperationWithBlock:^{
+     <#code#>
+     }];
+     所有代码写在一起  便于维护
+     
+     NSOperation 本质上就是对GCD 的面向对象的封装
+     
+     
+     更简单的方法
+     NSOperationQueue * q =[[NSOperationQueue alloc]init];
+     [q addOperationWithBlock:^{
+     <#code#>
+     }];
+     
+     在实际开发中  队列每次分配都比较浪费
+     队列使用懒加载方式进行使用
+     
+    [NSOperationQueue mainQueue];主队列  回调 刷新ui
+     
+     
+     GCD 在iOS4.0推出,针对多核处理器做的优化的并发技术,是C语言的.
+     将任务添加到队列(串行,并发) 并且指定同步异步执行
+     提供了一些NSOperation 不具备的功能
+     一次执行 延迟执行  调度组
+     
+     NSOperation 是iOS2.0推出的,
+     讲异步执行的任务 添加到并发队列 并立刻执行.
+     
+     提供了  最大并发线程数,队列的暂停继续
+     取消所有操作,指定操作间的依赖关系.
+     
+     [NSOperationQueue mainQueue].maxConcurrentOperationCount=2;
+    设置最大线程数
      
      */
     
     
     
+
+    
+    
+    
+  
     
    
 #pragma mark ----- Runloop
